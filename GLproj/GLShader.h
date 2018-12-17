@@ -41,8 +41,12 @@ public:
 	bool setUniformfv3(std::string name,  glm::vec3 v);
 	bool setUniformfv2(std::string name, glm::vec2 v);
 	bool setUniformmat4(std::string name, bool transpose, glm::mat4 mat4);
+	bool setUniformmat3(std::string name, bool transpose, glm::mat3 mat3);
 	bool setUniform1i(std::string name,  const GLint value);
+	bool setUniform1s(std::string name, const GLint value);
 	bool setUniform1f(std::string name, const GLfloat value);
+	bool setUniform1b(std::string name, const bool value);
+
 
 	GLint getAttributeLocation(std::string name);
 
@@ -64,7 +68,7 @@ private:
 	void printInfoLogShader(GLuint shader);
 
 	
-
+	void printInfoLogProgram();
 	
 
 

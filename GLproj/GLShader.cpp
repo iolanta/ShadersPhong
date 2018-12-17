@@ -100,6 +100,17 @@ bool GLShader::setUniformmat4(std::string name, bool transpose, glm::mat4 mat4)
 	return true;
 }
 
+bool GLShader::setUniformmat3(std::string name, bool transpose, glm::mat3 mat3)
+{
+	auto vd = uniforms.find(name);
+	if (vd == uniforms.end())
+		return false; // no such uniform
+	if (vd->second.type != GL_FLOAT_MAT3)
+		return false; // type error
+	glUniformMatrix3fv(vd->second.location, 1, transpose, glm::value_ptr(mat3));
+	return true;
+}
+
 
 
 
@@ -108,8 +119,19 @@ bool GLShader::setUniform1i(std::string name, const GLint value)
 	auto vd = uniforms.find(name);
 	if (vd == uniforms.end())
 		return false; // no such uniform
-//	if (vd->second.type != GL_INT)
-//		return false; // type error
+	if (vd->second.type != GL_INT)
+		return false; // type error
+	glUniform1i(vd->second.location, value);
+	return true;
+}
+
+bool GLShader::setUniform1s(std::string name, const GLint value)
+{
+	auto vd = uniforms.find(name);
+	if (vd == uniforms.end())
+		return false; // no such uniform
+	if (vd->second.type != GL_SAMPLER_2D)
+		return false; // type error
 	glUniform1i(vd->second.location, value);
 	return true;
 }
@@ -122,6 +144,17 @@ bool GLShader::setUniform1f(std::string name, const GLfloat value)
 	if (vd->second.type != GL_FLOAT)
 		return false; // type error
 	glUniform1f(vd->second.location, value);
+	return true;
+}
+
+bool GLShader::setUniform1b(std::string name, const bool value)
+{
+	auto vd = uniforms.find(name);
+	if (vd == uniforms.end())
+		return false; // no such uniform
+	if (vd->second.type != GL_BOOL)
+		return false; // type error
+	glUniform1i(vd->second.location, value);
 	return true;
 }
 
@@ -170,6 +203,27 @@ void GLShader::printInfoLogShader(GLuint shader) {
 	}
 }
 
+void GLShader::printInfoLogProgram() {
+	int infologLen = 0;
+	int charsWritten = 0;
+	char *infoLog;
+	glGetProgramiv(ShaderProgram, GL_INFO_LOG_LENGTH, &infologLen);
+	if (infologLen > 1)
+	{
+		infoLog = new char[infologLen];
+		if (infoLog == NULL)
+		{
+			std::cout << "ERROR: Could not allocate InfoLog buffer\n";
+			exit(1);
+		}
+		glGetProgramInfoLog(ShaderProgram, infologLen, &charsWritten, infoLog);
+		std::cout << "InfoLog: " << infoLog << "\n\n\n";
+		delete[] infoLog;
+	}
+}
+
+
+
 void GLShader::linkProgram(int vertex_id, int fragment_id) {
 	GLint act_cnt;
 	glGetProgramiv(ShaderProgram, GL_ATTACHED_SHADERS, &act_cnt);
@@ -181,13 +235,17 @@ void GLShader::linkProgram(int vertex_id, int fragment_id) {
 
 	glAttachShader(ShaderProgram, shaders[vertex_id].shader);
 	glAttachShader(ShaderProgram, shaders[fragment_id].shader);
+	checkOpenGLerror();
+	printInfoLogProgram();
 	glLinkProgram(ShaderProgram);
-
+	glewGetErrorString(glGetError());
 	int link_ok;
 	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &link_ok);
 	if (!link_ok)
 	{
 		std::cout << "error attach shaders \n";
+		checkOpenGLerror();
+		printInfoLogProgram();
 		return;
 	}
 

@@ -4,7 +4,7 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-GLobject::GLobject(std::string path)
+GLobject::GLobject(std::string path, glm::vec3 clr)
 {
 	objl::Loader modelloader;
 	modelloader.LoadFile(path);
@@ -40,9 +40,9 @@ GLobject::GLobject(std::string path)
 		mapped_data[ind++] = modelloader.LoadedVertices[i].Normal.Z;
 		mapped_data[ind++] = modelloader.LoadedVertices[i].TextureCoordinate.X;
 		mapped_data[ind++] = modelloader.LoadedVertices[i].TextureCoordinate.Y;
-		mapped_data[ind++] = 0.8;
-		mapped_data[ind++] = 0.5;
-		mapped_data[ind++] = 0.3;
+		mapped_data[ind++] = clr.r;
+		mapped_data[ind++] = clr.g;
+		mapped_data[ind++] = clr.b;
 		
 	}
 	glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -58,6 +58,14 @@ GLobject::GLobject(std::string path)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count_indexes * sizeof(GLushort), indeces, GL_STATIC_DRAW);
 	delete indeces;
 	glBindVertexArray(0);
+
+	auto mat =  modelloader.LoadedMeshes[0].MeshMaterial;
+	material_ambient = {mat.Ka.X,mat.Ka.Y, mat.Ka.Z,1};
+	material_diffuse = { mat.Kd.X,mat.Kd.Y, mat.Kd.Z,1 };
+	material_specular = { mat.Ks.X,mat.Ks.Y, mat.Ks.Z,1 };
+	material_emission = { 0,0,0,1 };
+	material_shininess = mat.Ns;
+
 
 }
 
@@ -80,7 +88,7 @@ bool GLobject::BindAttributesToShader(GLShader & shaderobject)
 	}
 	if (NormAttrib != -1) {
 		glEnableVertexAttribArray(NormAttrib);
-		glVertexAttribPointer(NormAttrib, 3, GL_FLOAT, GL_TRUE, stride, BUFFER_OFFSET(sizeof(GLfloat)*4));
+		glVertexAttribPointer(NormAttrib, 3, GL_FLOAT, GL_FALSE, stride, BUFFER_OFFSET(sizeof(GLfloat)*4));
 	}
 	if (TexCoordAttrib != -1) {
 		glEnableVertexAttribArray(TexCoordAttrib);

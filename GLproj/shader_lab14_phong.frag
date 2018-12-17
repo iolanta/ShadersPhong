@@ -31,7 +31,9 @@ void main(){
 	vec3 lightDir = normalize(vert_lightDir);
 	vec3 viewDir = normalize(vert_viewDir);
 	
-	float attenuation = 1.0 / (light_attenuation.x + light_attenuation.y * vert_distance + light_attenuation.z * vert_distance * vert_distance);
+	float attenuation = 1;
+	if(length(light_attenuation) != 0)
+		 attenuation = 1.0 / (light_attenuation[0] + light_attenuation[1] * vert_distance + light_attenuation[2] * vert_distance * vert_distance);
 	
 	color = material_emission;
 	color += material_ambient * light_ambient * attenuation;
@@ -45,5 +47,5 @@ void main(){
 	if(use_texture)
 		color *= texture(material_texture, vert_texcoord);
 	else
-		color *= vert_color;
+		color *= vec4(vert_color,1);
 }

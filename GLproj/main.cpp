@@ -123,8 +123,8 @@ void Update(void) {
 	lp = m * lp;
 
 	// vert shader part, never changes
-	glm::mat4 transform_model = glm::rotate(rotateX, glm::vec3(0, 0, 1));
-	transform_model = glm::rotate(transform_model, rotateY, glm::vec3( 0,1,0 ));
+	glm::mat4 transform_model = glm::rotate(rotateY, glm::vec3(0, 0, 1));
+	transform_model = glm::rotate(transform_model, rotateX, glm::vec3( 1,0,0 ));
 	
 	shaderwrap->setUniformmat4("transform_model",false, transform_model);	
 	shaderwrap->setUniformmat4("transform_viewProjection", false, Matrix_projection);
@@ -272,7 +272,7 @@ int main(int argc, char **argv)
 	
 	load_textures();
 	LoadShaders();
-	mode = 0;
+	mode = -1;
 	objectwrap = new GLobject("cat.obj");
 	next_mode();
 	shaderwrap->checkOpenGLerror();
